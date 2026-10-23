@@ -1,0 +1,25 @@
+# Keeps one rclone remote mounted at ~/Cloud/<remote> for the Cloud section in
+# Files. The instance is the escaped remote name, for example
+#   systemctl --user enable --now "nautilus-cloud@$(systemd-escape onedrive).service"
+# The extension enables an instance for every remote it finds and disables the
+# ones whose remote is gone, so remotes are mounted at login.
+#
+# Keep the rclone flags in step with cloud_rclone_mount_argv() in
+# src/core/cloud-rclone.c; tests/test-core.c compares them.
+
+[Unit]
+Description=Cloud folder %I
+
+[Service]
+Type=notify
+ExecStartPre=mkdir -p %h/Cloud/%I
+ExecStart=rclone mount --vfs-cache-mode full --cache-dir %C/nautilus-cloud-sidebar --vfs-cache-max-size 5G --vfs-cache-max-age 168h --vfs-cache-min-free-space 10G -- %I: %h/Cloud/%I
+# Detach first, so a busy mount can't be left behind half-unmounted.
+ExecStop=-fusermount3 -uz %h/Cloud/%I
+# Offline at login, or the provider unreachable: try again.
+Restart=on-failure
+RestartSec=30s
+TimeoutStopSec=60s
+
+[Install]
+WantedBy=default.target
