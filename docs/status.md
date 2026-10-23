@@ -23,7 +23,9 @@ Last updated: **2026-10-23**.
   (via `pkexec`, whose password dialog Omarchy's shell provides). Files was restarted and
   logged `Cloud sidebar ready: …` with the user's three remotes. After rebuilding,
   reinstall the same way, then run `nautilus -q`.
-- **No git commits.** Everything is untracked.
+- **Published:** `main` on the public repository github.com/andreivinca/Boto;
+  release **v1.0.0** (source only). Keep account names and personal paths out of
+  the repository.
 
 ## Installing (the user runs this: root and a Files restart)
 
@@ -42,7 +44,6 @@ Then go through the manual checklist in [testing.md](testing.md#manual-checks).
 | A real `rclone mount` and systemd transient unit are untested | Tests use fake `rclone`/`systemd-run` that only record argv. |
 | New remotes while Files is closed | Their unit is enabled the next time Files runs (D19). A `.path` unit watching `rclone.conf` could do it without Files, if ever wanted. |
 | Logging out and in with automount | Not yet observed on this machine; see the manual checklist. |
-| First commit | Not made; ask the user before committing (branch `main`, no history). |
 | Grandchild holding rclone's stdout would stall scans | See [decisions.md](decisions.md#d6). |
 | `g_warning` under `G_DEBUG=fatal-warnings` | Would abort Files on scan failures; see [decisions.md](decisions.md#d11). |
 | GTK 5 | The per-widget CSS provider (D10) and possibly the sidebar structure will need rework. |
