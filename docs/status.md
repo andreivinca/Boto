@@ -43,6 +43,8 @@ Then go through the manual checklist in [testing.md](testing.md#manual-checks).
 | Clicking a row in the **real** Nautilus is untested | Navigation (`slot.open-location`), the mount flow and the alert were only checked in the fake window. The action name exists in the 51.1 binary. Do the manual checklist after installing. |
 | A real `rclone mount` and systemd transient unit are untested | Tests use fake `rclone`/`systemd-run` that only record argv. |
 | New remotes while Files is closed | Their unit is enabled the next time Files runs (D19). A `.path` unit watching `rclone.conf` could do it without Files, if ever wanted. |
+| This machine still uses a `make install` installation | Running `./install.sh` once replaces it with the pacman package (it removes the untracked files first). |
+| Real Nautilus on other distributions | Ubuntu 24.04 (Nautilus 46) and Fedora (Nautilus 50) build and pass the fake-window tests, but their private sidebar layout is unverified. |
 | Logging out and in with automount | Not yet observed on this machine; see the manual checklist. |
 | Grandchild holding rclone's stdout would stall scans | See [decisions.md](decisions.md#d6). |
 | `g_warning` under `G_DEBUG=fatal-warnings` | Would abort Files on scan failures; see [decisions.md](decisions.md#d11). |

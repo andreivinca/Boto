@@ -1,0 +1,58 @@
+# Builds the Nautilus Cloud Sidebar checkout this file belongs to, local
+# changes included, and runs its tests. install.sh uses it; by hand:
+#   cd packaging/arch && makepkg -si
+
+pkgname=nautilus-cloud-sidebar
+pkgver=1.0.0.r1.g696a155
+pkgrel=1
+pkgdesc='Cloud section for the GNOME Files sidebar that mounts every rclone remote at ~/Cloud'
+arch=(x86_64 aarch64)
+url='https://github.com/andreivinca/Boto'
+# No license has been chosen for the project yet.
+license=(LicenseRef-unspecified)
+depends=(nautilus libnautilus-extension gtk4 glib2 json-glib rclone fuse3)
+makedepends=(git)
+checkdepends=(libadwaita)
+options=(!debug)
+install=$pkgname.install
+
+_checkout=$(realpath "$startdir/../..")
+
+pkgver() {
+    local version
+
+    # 1.0.0 at the tag v1.0.0, 1.0.0.r3.g1a2b3c4 three commits later.
+    if version=$(git -C "$_checkout" describe --tags --long 2>/dev/null); then
+        printf '%s\n' "$version" | sed 's/^v//; s/-\([0-9]*\)-g/.r\1.g/; s/\.r0\.g[0-9a-f]*$//'
+    else
+        printf '0.r%s.g%s\n' "$(git -C "$_checkout" rev-list --count HEAD)" \
+            "$(git -C "$_checkout" rev-parse --short HEAD)"
+    fi
+}
+
+prepare() {
+    local file
+
+    # The checkout as it is now: tracked and new files, not ignored ones.
+    rm -rf "${srcdir:?}/$pkgname"
+    mkdir "$srcdir/$pkgname"
+    cd "$_checkout"
+    git ls-files -z --cached --others --exclude-standard | while IFS= read -r -d '' file; do
+        if [[ -e $file ]]; then
+            cp --parents -P -- "$file" "$srcdir/$pkgname/"
+        fi
+    done
+}
+
+build() {
+    make -C "$srcdir/$pkgname"
+}
+
+check() {
+    make -C "$srcdir/$pkgname" check
+}
+
+package() {
+    make -C "$srcdir/$pkgname" DESTDIR="$pkgdir" install
+    install -Dm644 "$srcdir/$pkgname/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md"
+}

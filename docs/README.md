@@ -5,6 +5,7 @@ README (install, behaviour summary) is [`../README.md`](../README.md).
 
 | Document | Read it when |
 | --- | --- |
+| [../SETUP.md](../SETUP.md) | You set up another computer: rclone accounts and the mount service, without needing the extension. |
 | [business-requirements.md](business-requirements.md) | You need to know *why* the extension exists, who it is for, what is in and out of scope. |
 | [technical-requirements.md](technical-requirements.md) | You change behaviour. Every requirement has an ID, the code that implements it, and the test that covers it. |
 | [architecture.md](architecture.md) | You need the code map, layers, threading model, object lifetimes, or where to change what. |

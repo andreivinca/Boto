@@ -10,7 +10,8 @@ Read `docs/README.md` first. Then, depending on the task:
 - `docs/decisions.md`: why things are done the way they are; check before "fixing" them.
 
 Commands: `make`, `make check` (headless, ~5 s), `make smoke` (real Nautilus in
-namespaces, ~20 s), `sudo make install` (the user runs this).
+namespaces, ~20 s). Users install with `./install.sh` (pacman package on Arch via
+`packaging/arch/PKGBUILD`, `sudo make install` elsewhere); `--check` is a dry run.
 
 Source layout (dependencies point down; details in `docs/architecture.md`):
 - `src/module.c`, `src/cloud-extension.c`: module entry points and wiring.

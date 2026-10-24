@@ -1,0 +1,20 @@
+# pacman runs these as root; per-user steps can only be described.
+
+post_install() {
+    cat <<'EOF'
+==> Restart Files (nautilus -q) to load the Cloud sidebar. From then on every
+    rclone remote is mounted at ~/Cloud/<remote> at login.
+EOF
+}
+
+post_upgrade() {
+    echo '==> Restart Files (nautilus -q) to load the new version.'
+}
+
+pre_remove() {
+    cat <<'EOF'
+==> Running cloud mounts stop at the next logout. To stop them now, as each user:
+    cd ~/.config/systemd/user/default.target.wants &&
+        systemctl --user disable --now nautilus-cloud@*.service
+EOF
+}

@@ -81,6 +81,29 @@ Stages (the script re-executes itself with `CLOUD_SMOKE_STAGE`):
 Requirements: unprivileged user namespaces, util-linux ≥ 2.38 (`--map-user`),
 `gtk4-broadwayd`, `dbus-run-session`, the installed `nautilus`.
 
+## The installer on other distributions
+
+`install.sh` and the build were checked in fresh Docker images (2026-10-24).
+Each run started with nothing installed:
+1. `./install.sh --check --make` as a normal user, which must print the
+   missing tools and the install command for that distribution;
+2. install exactly the packages that command names, then check again (must
+   pass);
+3. add `libadwaita-1-dev libgtk-4-bin` (Ubuntu) or `libadwaita-devel` (Fedora),
+   which only the tests need, then run `make` and `make check`.
+
+| Image | Nautilus | GTK | GLib | Result |
+| --- | --- | --- | --- | --- |
+| `ubuntu:24.04` | 46.4 | 4.14.5 | 2.80.0 | hint correct, builds without warnings, 38/38 tests pass |
+| `fedora:latest` | 50.4 | 4.22.5 | 2.88.4 | hint correct, builds without warnings, 38/38 tests pass |
+
+These tests use the fake Nautilus window, not those distributions' real
+Nautilus, so the private sidebar structure there is unverified; only Nautilus
+51.1 has been checked with `make smoke`. The Arch package was checked with
+`makepkg` (build, `check()`, contents: the module, the unit template and the
+README). `install.sh` and the PKGBUILD pass ShellCheck
+(`docker run --rm -v "$PWD:/mnt:ro" -w /mnt koalaman/shellcheck:stable -s sh install.sh`).
+
 ## Looking at the real thing
 
 To see what Nautilus actually draws (for layout work), serve the sandboxed

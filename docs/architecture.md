@@ -4,6 +4,8 @@
 
 ```
 Makefile                        build, check, smoke, install, uninstall, compile_flags.txt (clangd)
+install.sh                      one-step install/uninstall: pacman package on Arch, make elsewhere
+packaging/arch/                 PKGBUILD (builds this checkout) and pacman install messages
 data/
   nautilus-cloud@.service       systemd user unit template: mounts one remote at ~/Cloud/<remote> at login
 src/

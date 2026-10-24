@@ -79,6 +79,8 @@ session)
     # Display :N listens on broadway<N+1>.socket.
     until [ -S "$root/runtime/broadway8.socket" ]; do sleep 0.05; done
     rclone mount Profile: "$HOME" &
+    # The inner script expands its own positional arguments.
+    # shellcheck disable=SC2016
     dbus-run-session --config-file="$root/session.conf" -- \
         sh -c 'nautilus --new-window "$1" >"$2/nautilus.log" 2>&1 & pid=$!
                sleep "$3"; kill $pid; wait $pid || true' sh "$mounted/Documents" "$root" "$CLOUD_SMOKE_SECONDS"

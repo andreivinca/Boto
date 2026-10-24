@@ -286,3 +286,36 @@ extension.**
 - Migration on the development machine: the last transient mount was stopped
   when idle, the template installed, `systemctl --user daemon-reload` run;
   Files' first scan then enabled and started all three remotes.
+
+<a id="d20"></a>
+## D20: install.sh, with a pacman package on Arch (user request)
+
+The user asked for one script that does the whole installation. A script that
+only copies files would leave them unknown to the package manager, so on Arch
+it builds and installs a real package instead.
+
+- **`install.sh`** (POSIX sh, ShellCheck-clean): refuses root and non-Linux;
+  on Arch runs `makepkg -si` on `packaging/arch/PKGBUILD`; elsewhere checks
+  build dependencies (commands, pkg-config modules, GLib ≥ 2.80, GTK ≥ 4.12),
+  prints the install command for the distribution from `/etc/os-release`
+  (Debian/Ubuntu, Fedora/RHEL, openSUSE, Arch), then runs `make` and
+  `sudo make install` and reloads the user manager. Both paths restart Files,
+  whose first scan enables the mount units (D19). `--check` is a dry run,
+  `--make` forces the generic path, `--uninstall` disables the units by name and
+  removes the package or files.
+- **`systemctl disable` accepts no wildcards** (it prints a notice, does nothing
+  and exits 0), so `--uninstall` names each enabled unit from
+  `~/.config/systemd/user/default.target.wants`. The README and the v1.0.0
+  release notes had suggested `disable --now 'nautilus-cloud@*'`; both were
+  corrected.
+- **The PKGBUILD builds the checkout it lives in**, local changes included,
+  copying tracked and new files into `$srcdir`, rather than downloading a tag.
+  `pkgver()` comes from `git describe`, e.g. `1.0.0.r1.g696a155`, so pacman sees
+  every rebuild after a commit as an upgrade. `check()` runs `make check`.
+  Arch's own pacman hook (`30-systemd-daemon-reload-user.hook`) reloads every
+  user manager after install, so no manual `daemon-reload` is needed there.
+  For the AUR it would need a `source=` pointing at a tag instead.
+- An earlier `make install` would make pacman refuse to overwrite the files, so
+  the script removes such an untracked installation first (`pacman -Qo`).
+- The project has no license yet; the PKGBUILD says
+  `LicenseRef-unspecified` until one is chosen.

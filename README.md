@@ -28,37 +28,58 @@ or they will read the remotes through the mounts.
 
 ## Installation
 
-The extension is a native Nautilus module written in C. Building it requires a C
-compiler, make, pkg-config, GTK 4, json-glib, and the Nautilus extension headers
-(`libnautilus-extension-4`, shipped with the `nautilus` package on Arch). At
-runtime it needs rclone and FUSE3. Configure your accounts using `rclone config`,
-then build and install the module:
+To set up the cloud folders on another computer with just rclone and systemd,
+no extension needed, follow [SETUP.md](SETUP.md).
+
+
+Add your accounts with `rclone config` first, then from a clone of this
+repository:
 
 ```sh
-make
-sudo make install
-nautilus -q
+./install.sh
 ```
+
+The script installs the extension and restarts Files; from then on every
+remote is mounted at `~/Cloud/<remote>`, now and at every login.
+
+- **Arch Linux:** it builds a pacman package from `packaging/arch/PKGBUILD`
+  (makepkg installs missing dependencies and asks before installing), so
+  `pacman` upgrades and removes it like any other package. Running
+  `./install.sh` again after `git pull` upgrades it.
+- **Other Linux distributions:** it builds with `make` and installs with
+  `sudo make install`. If build dependencies are missing it stops and prints
+  the command that installs them:
+
+  | Distribution | Dependencies |
+  | --- | --- |
+  | Debian, Ubuntu | `sudo apt install build-essential pkg-config libnautilus-extension-dev libgtk-4-dev libjson-glib-dev fuse3`, and rclone from rclone.org: `curl https://rclone.org/install.sh \| sudo bash` |
+  | Fedora | `sudo dnf install gcc make pkgconf-pkg-config nautilus-devel gtk4-devel json-glib-devel rclone fuse3` |
+  | openSUSE | `sudo zypper install gcc make pkg-config nautilus-devel gtk4-devel json-glib-devel rclone fuse3` |
+
+  It needs GLib 2.80 and GTK 4.12 or newer (Ubuntu 24.04, current Fedora);
+  older releases such as Debian 12 can't build it. rclone must be 1.62 or
+  newer; Ubuntu 24.04's own package (1.60) is too old, so the script checks.
+
+`./install.sh --check` only reports what is missing and what it would do;
+`./install.sh --make` uses make even on Arch.
 
 Nautilus loads native extensions only from its system extension directory
 (`pkg-config --variable=extensiondir libnautilus-extension-4`, usually
 `/usr/lib/nautilus/extensions-4`), so installation needs root. It also installs
 the user unit template `nautilus-cloud@.service` (usually in
-`/usr/lib/systemd/user`); run `systemctl --user daemon-reload` once afterwards.
+`/usr/lib/systemd/user`).
 
-Reopen Files; its first scan enables a unit for each remote and mounts them.
-Check them with `systemctl --user list-units 'nautilus-cloud@*'`; logs are in
-`journalctl --user -u nautilus-cloud@<remote>`. To keep one remote from
+Check the mounts with `systemctl --user list-units 'nautilus-cloud@*'`; logs are
+in `journalctl --user -u nautilus-cloud@<remote>`. To keep one remote from
 mounting, remove it from rclone or mount it yourself elsewhere. Units run with
 your user manager's environment, so set things like `RCLONE_CONFIG` in
 `~/.config/environment.d/`.
 
-To uninstall, stop the mounts and remove the files:
+To uninstall, which stops the mounts and removes the extension (your files and
+`~/Cloud` stay):
 
 ```sh
-systemctl --user disable --now 'nautilus-cloud@*'
-sudo make uninstall
-nautilus -q
+./install.sh --uninstall
 ```
 
 Built against Nautilus 51.1. Sidebar injection uses private GTK widget structure
